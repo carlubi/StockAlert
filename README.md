@@ -62,12 +62,7 @@ El paso previo a `start` genera la configuración del navegador con esas tres va
 
 ## Desplegar en Vercel
 
-Configura el directorio raíz del proyecto en Vercel como `client`. Añade allí las mismas tres variables públicas anteriores y usa:
-
-```text
-Build command: npm run build
-Output directory: dist/client/browser
-```
+Mantén el directorio raíz de Vercel en la raíz del repositorio. El archivo `vercel.json` instala y compila `client`, publica `client/dist/client/browser` y permite abrir cualquier ruta de Angular. Añade las mismas tres variables públicas anteriores al proyecto de Vercel.
 
 En Supabase, añade la URL HTTPS final de Vercel a **Authentication > URL Configuration > Site URL**. El frontend se comunica directamente con Supabase y las dos Edge Functions desplegadas.
 
