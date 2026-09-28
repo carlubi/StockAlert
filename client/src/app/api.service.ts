@@ -12,7 +12,7 @@ export class ApiService {
   async listProducts(status: ProductStatus = 'active') {
     const { data, error } = await this.client()
       .from('products')
-      .select('id,name,brand,units,expiration_date,confidence,status,created_at')
+      .select('id,name,brand,units,expiration_date,confidence,needs_review,status,created_at')
       .eq('status', status)
       .order('expiration_date', { ascending: true });
     if (error) throw error;
@@ -37,7 +37,8 @@ export class ApiService {
       .update({ status: 'active' })
       .eq('id', id)
       .eq('status', 'pending')
-      .select('id,name,brand,units,expiration_date,confidence,status,created_at')
+      .eq('needs_review', false)
+      .select('id,name,brand,units,expiration_date,confidence,needs_review,status,created_at')
       .single();
     if (error || !data) throw error || new Error('Producto no encontrado.');
     return data as Product;
@@ -56,10 +57,11 @@ export class ApiService {
         expiration_date: product.expiration_date,
         date_label: null,
         confidence: 1,
+        needs_review: false,
         source_image_path: null,
         status: 'active',
       })
-      .select('id,name,brand,units,expiration_date,confidence,status,created_at')
+      .select('id,name,brand,units,expiration_date,confidence,needs_review,status,created_at')
       .single();
     if (error) throw error;
     return data as Product;
@@ -73,9 +75,10 @@ export class ApiService {
         brand: product.brand || null,
         units: product.units,
         expiration_date: product.expiration_date,
+        needs_review: false,
       })
       .eq('id', id)
-      .select('id,name,brand,units,expiration_date,confidence,status,created_at')
+      .select('id,name,brand,units,expiration_date,confidence,needs_review,status,created_at')
       .single();
     if (error || !data) throw error || new Error('Producto no encontrado.');
     return data as Product;

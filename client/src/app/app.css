@@ -433,6 +433,10 @@ h3 {
   font-size: 0.64rem;
   text-transform: uppercase;
 }
+.product-date.missing-date {
+  background: #fffbeb;
+  color: #a16207;
+}
 .product-info h3 {
   margin: 0;
   font-size: 1.1rem;
@@ -1393,12 +1397,111 @@ button:disabled {
 @media (max-width: 760px) {
   .product-table-wrap {
     margin-top: 18px;
-    border-radius: 10px;
+    max-height: none;
+    overflow: visible;
+    overscroll-behavior: auto;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    scrollbar-gutter: auto;
   }
-  .product-table th,
+  .product-table,
+  .product-table tbody,
+  .product-table tr,
   .product-table td {
-    padding-left: 14px;
-    padding-right: 14px;
+    display: block;
+    width: 100%;
+  }
+  .product-table {
+    min-width: 0;
+  }
+  .product-table thead {
+    display: none;
+  }
+  .product-table tbody {
+    display: grid;
+    gap: 12px;
+  }
+  .product-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.035);
+  }
+  .product-table tbody tr:hover {
+    background: #fff;
+  }
+  .product-table tbody tr.today {
+    border-color: #fecaca;
+    background: #fffafa;
+  }
+  .product-table td {
+    min-width: 0;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.86rem;
+  }
+  .product-table tbody tr:last-child td {
+    border-bottom: 1px solid var(--line);
+  }
+  .product-table td::before {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted);
+    content: attr(data-label);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .product-table td[data-label='Producto'],
+  .product-table td[data-label='Estado'],
+  .product-table td[data-label='Gastado'],
+  .product-table td[data-label='Acciones'] {
+    grid-column: 1 / -1;
+  }
+  .product-table td[data-label='Producto']::before {
+    display: none;
+  }
+  .product-table td[data-label='Unidades'] {
+    border-right: 1px solid var(--line);
+  }
+  .product-table td[data-label='Producto'] strong {
+    font-size: 1.08rem;
+  }
+  .product-table td[data-label='Producto'] span {
+    font-size: 0.8rem;
+  }
+  .units-cell {
+    text-align: left;
+  }
+  .product-table td[data-label='Gastado'] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .product-table td[data-label='Gastado']::before {
+    margin: 0;
+  }
+  .product-table td[data-label='Gastado'] .consume-checkbox {
+    margin: 0;
+  }
+  .product-table td[data-label='Acciones'] {
+    border-bottom: 0;
+  }
+  .product-table tbody tr:last-child td[data-label='Acciones'] {
+    border-bottom: 0;
+  }
+  .table-actions {
+    justify-content: flex-start;
+    gap: 8px;
+  }
+  .table-actions .icon-button {
+    border: 1px solid var(--line);
+    background: #fff;
   }
 }
 
@@ -1482,6 +1585,13 @@ button:disabled {
   color: var(--green);
   font-size: 0.72rem;
   font-weight: 800;
+}
+.pending-product-info .pending-review {
+  margin-top: 8px;
+  color: #a16207;
+  font-size: 0.76rem;
+  font-weight: 750;
+  line-height: 1.45;
 }
 .pending-card-actions {
   display: flex;

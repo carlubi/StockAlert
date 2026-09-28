@@ -162,17 +162,22 @@
         </div>
       </article>
       <article class="pending-card" *ngFor="let product of pendingProducts()">
-        <div class="product-date">
-          <span>{{ product.expiration_date | date: 'dd' }}</span
-          ><small>{{ product.expiration_date | date: 'MMM' }}</small>
+        <div class="product-date" [class.missing-date]="!product.expiration_date">
+          <ng-container *ngIf="product.expiration_date; else missingDate"
+            ><span>{{ product.expiration_date | date: 'dd' }}</span
+            ><small>{{ product.expiration_date | date: 'MMM' }}</small></ng-container
+          ><ng-template #missingDate><span>?</span><small>revisar</small></ng-template>
         </div>
         <div class="pending-product-info">
           <h3>{{ product.name }}</h3>
           <p>{{ product.brand || 'Sin marca' }}</p>
-          <span
+          <span *ngIf="!pendingNeedsReview(product)"
             >{{ product.units }} {{ product.units === 1 ? 'unidad' : 'unidades' }} · Revisa los
             datos antes de añadirlo.</span
           >
+          <p *ngIf="pendingNeedsReview(product)" class="pending-review" role="status">
+            Falta {{ pendingMissingText(product) }}. Revísalo y complétalo antes de confirmar.
+          </p>
         </div>
         <div class="pending-card-actions">
           <button
@@ -180,7 +185,7 @@
             class="primary-button confirm-button"
             (click)="confirmPending(product)"
           >
-            Confirmar</button
+            {{ pendingNeedsReview(product) ? 'Completar datos' : 'Confirmar' }}</button
           ><button
             [id]="'edit-product-' + product.id"
             type="button"

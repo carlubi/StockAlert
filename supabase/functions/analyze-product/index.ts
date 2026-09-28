@@ -9,10 +9,10 @@ const corsHeaders = {
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 type ProductDraft = {
-  name: string;
+  name: string | null;
   brand: string | null;
-  units: number;
-  expiration_date: string;
+  units: number | null;
+  expiration_date: string | null;
   confidence: number;
   date_label: string | null;
 };
@@ -52,17 +52,20 @@ function validDraft(value: unknown): value is ProductDraft {
   if (!value || typeof value !== "object") return false;
   const draft = value as Record<string, unknown>;
   return (
-    typeof draft.name === "string" &&
-    draft.name.trim().length > 0 &&
-    draft.name.length <= 180 &&
+    (draft.name === null ||
+      (typeof draft.name === "string" &&
+        draft.name.trim().length > 0 &&
+        draft.name.length <= 180)) &&
     (draft.brand === null ||
       (typeof draft.brand === "string" && draft.brand.length <= 120)) &&
-    typeof draft.units === "number" &&
-    Number.isInteger(draft.units) &&
-    draft.units >= 1 &&
-    draft.units <= 9999 &&
-    typeof draft.expiration_date === "string" &&
-    /^\d{4}-\d{2}-\d{2}$/.test(draft.expiration_date) &&
+    (draft.units === null ||
+      (typeof draft.units === "number" &&
+        Number.isInteger(draft.units) &&
+        draft.units >= 1 &&
+        draft.units <= 9999)) &&
+    (draft.expiration_date === null ||
+      (typeof draft.expiration_date === "string" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(draft.expiration_date))) &&
     typeof draft.confidence === "number" &&
     draft.confidence >= 0 &&
     draft.confidence <= 1 &&
@@ -126,14 +129,14 @@ Deno.serve(async (request) => {
     const schema = {
       type: "object",
       properties: {
-        name: { type: "string" },
+        name: { type: ["string", "null"] },
         brand: { type: ["string", "null"] },
         units: {
-          type: "integer",
+          type: ["integer", "null"],
           minimum: 1,
           maximum: 9999,
           description:
-            "Número de unidades del mismo producto y con esta misma fecha de caducidad visible en la imagen. Devuelve 1 si no se puede determinar otra cantidad con claridad.",
+            "Número de unidades físicas del mismo producto con esta misma fecha. Cuenta 1 si se ve un único envase; para un multipack usa el número de unidades, no el peso o volumen. Devuelve null si no se puede determinar con claridad.",
         },
         expiration_date: {
           type: ["string", "null"],
@@ -167,7 +170,7 @@ Deno.serve(async (request) => {
             content: [
               {
                 type: "input_text",
-                text: "Identifica el alimento o producto, la fecha de caducidad y cuántas unidades del mismo producto comparten esa fecha. Devuelve la fecha como YYYY-MM-DD. Cuenta las unidades solo si son visibles o aparecen claramente indicadas en el envase; si no se puede saber con certeza, devuelve 1. Si la fecha no se ve con certeza, devuelve null; nunca inventes una fecha.",
+                text: "Extrae solo los datos que puedas ver con seguridad: el alimento o producto, la fecha de caducidad y cuántas unidades físicas del mismo producto comparten esa fecha. Para unidades: devuelve 1 si se ve un único envase; si es un multipack, devuelve cuántos envases contiene; nunca confundas gramos, mililitros, porciones o peso con unidades. Si no puedes identificar el producto, la fecha o el número de unidades con seguridad, devuelve null en ese campo; nunca inventes datos.",
               },
               {
                 type: "input_image",
@@ -216,6 +219,13 @@ Deno.serve(async (request) => {
       return response({ error: "No se ha podido guardar la foto." }, 502);
     }
 
+    const missingFields = [
+      ...(parsed.name ? [] : ["el producto"]),
+      ...(parsed.expiration_date ? [] : ["la fecha de caducidad"]),
+      ...(parsed.units ? [] : ["las unidades"]),
+    ];
+    const needsReview = missingFields.length > 0;
+    const normalizedName = parsed.name?.trim() || "Producto por identificar";
     let storedProduct: {
       id: string;
       status: string;
@@ -224,7 +234,7 @@ Deno.serve(async (request) => {
     if (typeof productId === "string") {
       const { data: original, error: originalError } = await client
         .from("products")
-        .select("id,expiration_date,source_image_path")
+        .select("id,name,brand,units,expiration_date,source_image_path")
         .eq("id", productId)
         .eq("status", "active")
         .single();
@@ -247,10 +257,10 @@ Deno.serve(async (request) => {
       const { data, error: updateError } = await client
         .from("products")
         .update({
-          name: parsed.name.trim(),
-          brand: parsed.brand?.trim() || null,
-          units: parsed.units,
-          expiration_date: parsed.expiration_date,
+          name: parsed.name?.trim() || original.name,
+          brand: parsed.brand?.trim() || original.brand,
+          units: parsed.units ?? original.units,
+          expiration_date: parsed.expiration_date ?? original.expiration_date,
           confidence: parsed.confidence,
           date_label: parsed.date_label?.trim() || null,
           source_image_path: path,
@@ -269,7 +279,7 @@ Deno.serve(async (request) => {
         .from("products")
         .insert({
           owner_id: user.id,
-          name: parsed.name.trim(),
+          name: normalizedName,
           brand: parsed.brand?.trim() || null,
           units: parsed.units,
           expiration_date: parsed.expiration_date,
@@ -277,6 +287,7 @@ Deno.serve(async (request) => {
           date_label: parsed.date_label?.trim() || null,
           source_image_path: path,
           status: "pending",
+          needs_review: needsReview,
         })
         .select("id,status,created_at")
         .single();
@@ -292,9 +303,11 @@ Deno.serve(async (request) => {
 
     return response({
       ...parsed,
-      name: parsed.name.trim(),
+      name: normalizedName,
       brand: parsed.brand?.trim() || null,
       date_label: parsed.date_label?.trim() || null,
+      needs_review: needsReview,
+      missing_fields: missingFields,
       source_image_path: path,
       id: storedProduct!.id,
       status: storedProduct!.status,

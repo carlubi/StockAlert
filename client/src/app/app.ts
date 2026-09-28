@@ -135,11 +135,19 @@ export class App {
       const result = await this.api.analyzePhoto(file, replacementId);
       if (replacementId) {
         await this.loadProducts();
-        this.message.set('Producto actualizado con la nueva foto.');
+        this.message.set(
+          result.needs_review
+            ? `Foto procesada. Revisa ${this.analysisMissingText(result.missing_fields)} antes de darlo por actualizado.`
+            : 'Producto actualizado con la nueva foto.',
+        );
       } else if (jobId) {
         this.analysisJobs.update((jobs) => jobs.filter((job) => job.id !== jobId));
         this.pendingProducts.update((products) => [this.pendingProduct(result), ...products]);
-        this.message.set(`${result.name} está pendiente de tu confirmación.`);
+        this.message.set(
+          result.needs_review
+            ? `${result.name || 'El producto'} necesita revisión antes de confirmarlo.`
+            : `${result.name} está pendiente de tu confirmación.`,
+        );
       }
     } catch {
       if (jobId) {
@@ -185,6 +193,11 @@ export class App {
     }
   }
   async confirmPending(product: Product) {
+    if (this.pendingNeedsReview(product)) {
+      this.message.set(`Completa ${this.pendingMissingText(product)} antes de confirmarlo.`);
+      this.openEditDialog(product);
+      return;
+    }
     try {
       const confirmed = await this.api.confirmProduct(product.id);
       this.pendingProducts.update((items) => items.filter((item) => item.id !== confirmed.id));
@@ -252,8 +265,8 @@ export class App {
     this.editingProduct.set(product);
     this.editName.set(product.name);
     this.editBrand.set(product.brand || '');
-    this.editUnits.set(product.units);
-    this.editExpirationDate.set(product.expiration_date);
+    this.editUnits.set(product.units ?? 1);
+    this.editExpirationDate.set(product.expiration_date || '');
     this.editError.set('');
     this.editDialogOpen.set(true);
     window.setTimeout(() => document.getElementById('edit-name')?.focus());
@@ -331,7 +344,8 @@ export class App {
     this.view.set(view);
     this.loadProducts();
   }
-  daysUntil(date: string) {
+  daysUntil(date: string | null) {
+    if (!date) return Number.POSITIVE_INFINITY;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return Math.round((new Date(`${date}T00:00:00`).getTime() - today.getTime()) / 86400000);
@@ -350,6 +364,14 @@ export class App {
     if (days === 0) return 'Caduca hoy';
     if (days === 1) return 'Caduca mañana';
     return `Caduca en ${days} días`;
+  }
+  pendingNeedsReview(product: Product) {
+    return product.needs_review || this.pendingMissingDetails(product).length > 0;
+  }
+  pendingMissingText(product: Product) {
+    const fields = this.pendingMissingDetails(product);
+    if (!fields.length) return 'los datos pendientes';
+    return this.analysisMissingText(fields);
   }
   async enableNotifications() {
     if (!('Notification' in window)) {
@@ -468,11 +490,12 @@ export class App {
   private pendingProduct(product: AnalyzedProduct): Product {
     return {
       id: product.id,
-      name: product.name,
+      name: product.name || 'Producto por identificar',
       brand: product.brand || null,
       units: product.units,
       expiration_date: product.expiration_date,
       confidence: product.confidence,
+      needs_review: product.needs_review,
       status: 'pending',
       created_at: product.created_at,
     };
@@ -480,5 +503,18 @@ export class App {
   private base64ToUint8Array(value: string) {
     const raw = atob(value.replace(/-/g, '+').replace(/_/g, '/'));
     return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+  }
+  private pendingMissingDetails(product: Product) {
+    const fields: string[] = [];
+    if (!product.name.trim() || product.name === 'Producto por identificar')
+      fields.push('el producto');
+    if (!product.expiration_date) fields.push('la fecha de caducidad');
+    if (!product.units) fields.push('las unidades');
+    return fields;
+  }
+  private analysisMissingText(fields: string[]) {
+    if (fields.length < 2) return fields[0] || 'los datos pendientes';
+    if (fields.length === 2) return `${fields[0]} y ${fields[1]}`;
+    return `${fields.slice(0, -1).join(', ')} y ${fields.at(-1)}`;
   }
 }
