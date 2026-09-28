@@ -1,0 +1,7 @@
+project_id = "stockalert"
+
+[functions.analyze-product]
+verify_jwt = true
+
+[functions.send-expiry-notifications]
+verify_jwt = false

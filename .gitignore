@@ -1,0 +1,8 @@
+client/node_modules/
+client/dist/
+backend/.env
+.env
+supabase/functions/.env
+backend/.venv/
+__pycache__/
+.DS_Store
