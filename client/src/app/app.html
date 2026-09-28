@@ -1,41 +1,702 @@
 <a *ngIf="connected()" class="skip-link" href="#main">Saltar al contenido</a>
 <header *ngIf="connected()" class="topbar">
-  <a class="brand" href="#" aria-label="StockAlert, inicio"><img class="brand-logo" src="favicon.svg" alt="" aria-hidden="true">StockAlert</a>
-  <div class="topbar-actions"><button class="notification-icon-button" type="button" (click)="enableNotifications()" aria-label="Activar avisos" title="Activar avisos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></button><button id="logout-trigger" class="logout-icon-button" type="button" [disabled]="logoutLoading()" (click)="openLogoutDialog()" [attr.aria-label]="'Cerrar sesión de ' + userEmail()" title="Cerrar sesión"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v2"/><path d="m13 8 4 4-4 4M17 12H3"/></svg></button></div>
+  <a class="brand" href="#" aria-label="StockAlert, inicio"
+    ><img class="brand-logo" src="favicon.svg" alt="" aria-hidden="true" />StockAlert</a
+  >
+  <div class="topbar-actions">
+    <button
+      class="notification-icon-button"
+      type="button"
+      (click)="enableNotifications()"
+      aria-label="Activar avisos"
+      title="Activar avisos"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+        <path d="M10 21h4" />
+      </svg></button
+    ><button
+      id="logout-trigger"
+      class="logout-icon-button"
+      type="button"
+      [disabled]="logoutLoading()"
+      (click)="openLogoutDialog()"
+      [attr.aria-label]="'Cerrar sesión de ' + userEmail()"
+      title="Cerrar sesión"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M10 17v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v2" />
+        <path d="m13 8 4 4-4 4M17 12H3" />
+      </svg>
+    </button>
+  </div>
 </header>
-<div *ngIf="connected() && logoutDialogOpen()" class="logout-dialog-backdrop" (click)="closeLogoutDialog()">
-  <section class="logout-dialog" role="dialog" aria-modal="true" aria-labelledby="logout-title" aria-describedby="logout-description" (click)="$event.stopPropagation()">
-    <div class="logout-dialog-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 17v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v2"/><path d="m13 8 4 4-4 4M17 12H3"/></svg></div>
-    <p class="eyebrow">SESIÓN</p><h2 id="logout-title">¿Cerrar sesión?</h2><p id="logout-description">Tus productos seguirán guardados y protegidos. Podrás volver a entrar cuando quieras.</p>
-    <div class="logout-dialog-actions"><button id="logout-cancel" class="secondary-button" type="button" [disabled]="logoutLoading()" (click)="closeLogoutDialog()">Cancelar</button><button class="logout-confirm-button" type="button" [disabled]="logoutLoading()" (click)="logout()">{{ logoutLoading() ? 'Cerrando…' : 'Cerrar sesión' }}</button></div>
+<div
+  *ngIf="connected() && logoutDialogOpen()"
+  class="logout-dialog-backdrop"
+  (click)="closeLogoutDialog()"
+>
+  <section
+    class="logout-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="logout-title"
+    aria-describedby="logout-description"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="logout-dialog-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M10 17v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v2" />
+        <path d="m13 8 4 4-4 4M17 12H3" />
+      </svg>
+    </div>
+    <p class="eyebrow">SESIÓN</p>
+    <h2 id="logout-title">¿Cerrar sesión?</h2>
+    <p id="logout-description">
+      Tus productos seguirán guardados y protegidos. Podrás volver a entrar cuando quieras.
+    </p>
+    <div class="logout-dialog-actions">
+      <button
+        id="logout-cancel"
+        class="secondary-button"
+        type="button"
+        [disabled]="logoutLoading()"
+        (click)="closeLogoutDialog()"
+      >
+        Cancelar</button
+      ><button
+        class="logout-confirm-button"
+        type="button"
+        [disabled]="logoutLoading()"
+        (click)="logout()"
+      >
+        {{ logoutLoading() ? 'Cerrando…' : 'Cerrar sesión' }}
+      </button>
+    </div>
   </section>
 </div>
 <main *ngIf="connected()" id="main" class="shell">
-  <section class="hero" aria-labelledby="page-title"><div><p class="eyebrow">NI UN DESCUIDO</p><h1 id="page-title">Tu despensa, siempre al día.</h1><p class="intro">La mejor forma para no olvidarte.</p></div><button id="capture-trigger" class="camera-action-button" type="button" (click)="openCaptureDialog()" aria-label="Añadir producto con una foto" title="Añadir producto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.4-2h7.2L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/></svg></button></section>
-  <section class="metrics" aria-label="Resumen de productos"><article class="metric"><span class="metric-value">{{ total() }}</span><span>Productos activos</span></article><article class="metric metric-warning"><span class="metric-value">{{ daysSoon() }}</span><span>Caducan en 5 días</span></article><article class="metric metric-alert"><span class="metric-value">{{ daysToday() }}</span><span>Caducan hoy</span></article></section>
+  <section class="hero" aria-labelledby="page-title">
+    <div>
+      <p class="eyebrow">NI UN DESCUIDO</p>
+      <h1 id="page-title">Tu despensa, siempre al día.</h1>
+      <p class="intro">La mejor forma para no olvidarte.</p>
+    </div>
+    <div class="hero-actions">
+      <button
+        id="manual-trigger"
+        class="secondary-button manual-trigger"
+        type="button"
+        (click)="openManualDialog()"
+      >
+        Añadir manualmente</button
+      ><button
+        id="capture-trigger"
+        class="camera-action-button"
+        type="button"
+        (click)="openCaptureDialog()"
+        aria-label="Añadir producto con una foto"
+        title="Añadir producto"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M4 7h3l1.4-2h7.2L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"
+          />
+          <circle cx="12" cy="13" r="3.5" />
+        </svg>
+      </button>
+    </div>
+  </section>
+  <section class="metrics" aria-label="Resumen de productos">
+    <article class="metric">
+      <span class="metric-value">{{ total() }}</span
+      ><span>Productos activos</span>
+    </article>
+    <article class="metric metric-warning">
+      <span class="metric-value">{{ daysSoon() }}</span
+      ><span>Caducan en 5 días</span>
+    </article>
+    <article class="metric metric-alert">
+      <span class="metric-value">{{ daysToday() }}</span
+      ><span>Caducan hoy</span>
+    </article>
+  </section>
   <p class="status-message" aria-live="polite">{{ message() }}</p>
+  <section
+    class="pending-section"
+    *ngIf="analysisJobs().length || pendingProducts().length"
+    aria-labelledby="pending-title"
+  >
+    <div class="section-top">
+      <div>
+        <p class="eyebrow">COLA DE ANÁLISIS</p>
+        <h2 id="pending-title">Pendientes de confirmación</h2>
+      </div>
+      <span class="pending-count">{{ analysisJobs().length + pendingProducts().length }}</span>
+    </div>
+    <p class="pending-intro">
+      Puedes seguir añadiendo fotos mientras terminamos de leer las demás.
+    </p>
+    <div class="pending-list">
+      <article class="pending-card pending-processing" *ngFor="let job of analysisJobs()">
+        <div class="pending-state">
+          <span *ngIf="job.state === 'processing'" class="loading-ring" aria-hidden="true"></span
+          ><svg *ngIf="job.state === 'error'" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 9v4M12 17h.01M10.3 4.9 2.8 18a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.9a2 2 0 0 0-3.4 0Z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h3>{{ job.fileName || 'Foto sin nombre' }}</h3>
+          <p>{{ job.state === 'processing' ? 'Analizando producto y fecha…' : job.error }}</p>
+          <div
+            *ngIf="job.state === 'processing'"
+            class="indeterminate-progress"
+            role="progressbar"
+            aria-label="Analizando imagen"
+            aria-valuetext="En proceso"
+          >
+            <span></span>
+          </div>
+        </div>
+      </article>
+      <article class="pending-card" *ngFor="let product of pendingProducts()">
+        <div class="product-date">
+          <span>{{ product.expiration_date | date: 'dd' }}</span
+          ><small>{{ product.expiration_date | date: 'MMM' }}</small>
+        </div>
+        <div class="pending-product-info">
+          <h3>{{ product.name }}</h3>
+          <p>{{ product.brand || 'Sin marca' }}</p>
+          <span
+            >{{ product.units }} {{ product.units === 1 ? 'unidad' : 'unidades' }} · Revisa los
+            datos antes de añadirlo.</span
+          >
+        </div>
+        <div class="pending-card-actions">
+          <button
+            type="button"
+            class="primary-button confirm-button"
+            (click)="confirmPending(product)"
+          >
+            Confirmar</button
+          ><button
+            [id]="'edit-product-' + product.id"
+            type="button"
+            class="icon-button"
+            (click)="openEditDialog(product)"
+            [attr.aria-label]="'Editar ' + product.name"
+            title="Editar producto"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+            </svg></button
+          ><button
+            [id]="'delete-product-' + product.id"
+            type="button"
+            class="icon-button danger-icon-button"
+            (click)="openDeleteDialog(product)"
+            [attr.aria-label]="'Eliminar ' + product.name"
+            title="Eliminar producto"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+            </svg>
+          </button>
+        </div>
+      </article>
+    </div>
+  </section>
   <section class="products-section" aria-labelledby="products-title">
-    <div class="section-top"><div><p class="eyebrow">INVENTARIO</p><h2 id="products-title">Tus productos</h2></div><div class="tabs" role="tablist"><button role="tab" [attr.aria-selected]="view() === 'active'" [class.active]="view() === 'active'" (click)="setView('active')">Activos</button><button role="tab" [attr.aria-selected]="view() === 'archived'" [class.active]="view() === 'archived'" (click)="setView('archived')">Archivados</button></div></div>
-    <div class="product-list" *ngIf="products().length; else emptyState"><article class="product-card" *ngFor="let product of products()" [class]="'product-card ' + urgency(product)"><div class="product-date"><span>{{ product.expiration_date | date:'dd' }}</span><small>{{ product.expiration_date | date:'MMM' }}</small></div><div class="product-info"><h3>{{ product.name }}</h3><p>{{ product.brand || 'Sin marca' }}</p><span class="urgency-label">{{ urgencyText(product) }}</span></div><div class="card-actions" *ngIf="view() === 'active'"><button type="button" class="icon-button" (click)="replace(product)" [attr.aria-label]="'Reemplazar fecha de ' + product.name"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0 2 5.3M20 4v7h-7"/></svg></button><button type="button" class="consume-button" (click)="consume(product)">Gastado</button></div><span class="archived-tag" *ngIf="view() === 'archived'">Archivado</span></article></div>
-    <ng-template #emptyState><div class="empty-state"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v13H5zM8 4h8v3M8 11h8M8 15h5"/></svg><h3>No hay productos aquí</h3><p>Usa la cámara para añadir tu primer producto.</p></div></ng-template>
+    <div class="section-top">
+      <div>
+        <p class="eyebrow">INVENTARIO</p>
+        <h2 id="products-title">Tus productos</h2>
+      </div>
+      <div class="tabs" role="tablist">
+        <button
+          role="tab"
+          [attr.aria-selected]="view() === 'active'"
+          [class.active]="view() === 'active'"
+          (click)="setView('active')"
+        >
+          Activos</button
+        ><button
+          role="tab"
+          [attr.aria-selected]="view() === 'archived'"
+          [class.active]="view() === 'archived'"
+          (click)="setView('archived')"
+        >
+          Archivados
+        </button>
+      </div>
+    </div>
+    <div class="product-table-wrap" *ngIf="products().length; else emptyState">
+      <table class="product-table">
+        <caption class="sr-only">
+          Productos
+          {{
+            view() === 'active' ? 'activos' : 'archivados'
+          }}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Producto</th>
+            <th scope="col" class="units-heading">Unidades</th>
+            <th scope="col">Caducidad</th>
+            <th scope="col">Estado</th>
+            <th scope="col" class="consumed-heading">Gastado</th>
+            <th scope="col" class="actions-heading">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products()" [class]="urgency(product)">
+            <td data-label="Producto">
+              <strong>{{ product.name }}</strong
+              ><span>{{ product.brand || 'Sin marca' }}</span>
+            </td>
+            <td data-label="Unidades" class="units-cell">{{ product.units }}</td>
+            <td data-label="Caducidad">
+              <time [attr.datetime]="product.expiration_date">{{
+                product.expiration_date | date: 'dd MMM, y'
+              }}</time>
+            </td>
+            <td data-label="Estado">
+              <span class="urgency-label">{{
+                view() === 'archived' ? 'Archivado' : urgencyText(product)
+              }}</span>
+            </td>
+            <td data-label="Gastado">
+              <label
+                *ngIf="view() === 'active'; else archivedConsume"
+                class="consume-checkbox"
+                [attr.aria-label]="'Marcar ' + product.name + ' como gastado'"
+                ><input
+                  [id]="'consume-product-' + product.id"
+                  type="checkbox"
+                  [checked]="false"
+                  (change)="openConsumeDialog(product, $event)" /><span
+                  aria-hidden="true"
+                ></span></label
+              ><ng-template #archivedConsume><span class="table-muted">—</span></ng-template>
+            </td>
+            <td data-label="Acciones">
+              <div class="table-actions">
+                <button
+                  [id]="'edit-product-' + product.id"
+                  type="button"
+                  class="icon-button"
+                  (click)="openEditDialog(product)"
+                  [attr.aria-label]="'Editar ' + product.name"
+                  title="Editar producto"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                  </svg></button
+                ><button
+                  *ngIf="view() === 'active'"
+                  type="button"
+                  class="icon-button"
+                  (click)="replace(product)"
+                  [attr.aria-label]="'Reemplazar fecha de ' + product.name"
+                  title="Reemplazar con foto"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20 11a8 8 0 1 0 2 5.3M20 4v7h-7" />
+                  </svg></button
+                ><button
+                  [id]="'delete-product-' + product.id"
+                  type="button"
+                  class="icon-button danger-icon-button"
+                  (click)="openDeleteDialog(product)"
+                  [attr.aria-label]="'Eliminar ' + product.name"
+                  title="Eliminar producto"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #emptyState
+      ><div class="empty-state">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 7h14v13H5zM8 4h8v3M8 11h8M8 15h5" />
+        </svg>
+        <h3>No hay productos aquí</h3>
+        <p>Usa la cámara o añade un producto manualmente.</p>
+      </div></ng-template
+    >
   </section>
 </main>
-<div *ngIf="connected() && captureDialogOpen()" class="capture-dialog-backdrop" (click)="closeCaptureDialog()">
-  <section class="capture-dialog" role="dialog" aria-modal="true" aria-labelledby="capture-title" (click)="$event.stopPropagation()">
-    <div class="capture-dialog-header"><div><p class="eyebrow">{{ replacingId() ? 'REEMPLAZAR PRODUCTO' : 'AÑADIR PRODUCTO' }}</p><h2 id="capture-title">{{ replacingId() ? 'Reemplaza la fecha' : 'Haz una foto' }}</h2></div><button id="capture-close" type="button" class="close-button" [disabled]="processing() || saving()" (click)="closeCaptureDialog()" aria-label="Cerrar añadir producto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-    <div class="capture-content">
-      <label class="upload-zone" [class.has-preview]="previewUrl()" for="product-image"><ng-container *ngIf="previewUrl(); else uploadPrompt"><img [src]="previewUrl()" alt="Vista previa del producto"><span>Cambiar imagen</span></ng-container><ng-template #uploadPrompt><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.4-2h7.2L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.5"/></svg><strong>Tomar o subir una foto</strong><small>JPG, PNG o WebP · hasta 5 MB</small></ng-template></label>
-      <input id="product-image" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" (change)="onFile($event)">
-      <div class="capture-copy"><p>Incluye el producto y su fecha en la misma foto para mejorar la lectura.</p><button type="button" class="secondary-button" [disabled]="!selectedFile() || processing()" (click)="analyze()"><span *ngIf="processing()" class="spinner" aria-hidden="true"></span>{{ processing() ? 'Leyendo imagen…' : 'Analizar foto' }}</button></div>
+<div
+  *ngIf="connected() && manualDialogOpen()"
+  class="product-dialog-backdrop"
+  (click)="closeManualDialog()"
+>
+  <section
+    class="product-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="manual-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="product-dialog-header">
+      <div>
+        <p class="eyebrow">AÑADIR PRODUCTO</p>
+        <h2 id="manual-title">Añádelo a mano</h2>
+      </div>
+      <button
+        type="button"
+        class="close-button"
+        [disabled]="manualSaving()"
+        (click)="closeManualDialog()"
+        aria-label="Cerrar alta manual"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+      </button>
     </div>
-    <div class="extracted" *ngIf="extracted() as item"><div><span class="check" aria-hidden="true">✓</span><strong>Información encontrada</strong><small>Revisa la información antes de guardarla.</small></div><label>Producto<input [(ngModel)]="item.name" aria-label="Nombre del producto"></label><label>Caducidad<input type="date" [(ngModel)]="item.expiration_date" aria-label="Fecha de caducidad"></label><button type="button" class="primary-button" [disabled]="saving()" (click)="save()">{{ saving() ? 'Guardando…' : 'Confirmar y guardar' }}</button></div>
+    <form class="product-form" (ngSubmit)="saveManualProduct()" novalidate>
+      <label for="manual-name"
+        >Producto <span aria-hidden="true">*</span
+        ><input
+          id="manual-name"
+          name="manual-name"
+          type="text"
+          maxlength="180"
+          autocomplete="off"
+          [ngModel]="manualName()"
+          (ngModelChange)="manualName.set($event)"
+          [disabled]="manualSaving()"
+          required /></label
+      ><label for="manual-brand"
+        >Marca <span class="optional">Opcional</span
+        ><input
+          id="manual-brand"
+          name="manual-brand"
+          type="text"
+          maxlength="120"
+          autocomplete="off"
+          [ngModel]="manualBrand()"
+          (ngModelChange)="manualBrand.set($event)"
+          [disabled]="manualSaving()" /></label
+      ><label for="manual-units"
+        >Unidades <span aria-hidden="true">*</span
+        ><input
+          id="manual-units"
+          name="manual-units"
+          type="number"
+          min="1"
+          max="9999"
+          step="1"
+          inputmode="numeric"
+          [ngModel]="manualUnits()"
+          (ngModelChange)="manualUnits.set($event)"
+          [disabled]="manualSaving()"
+          required /></label
+      ><label for="manual-expiration"
+        >Fecha de caducidad <span aria-hidden="true">*</span
+        ><input
+          id="manual-expiration"
+          name="manual-expiration"
+          type="date"
+          [ngModel]="manualExpirationDate()"
+          (ngModelChange)="manualExpirationDate.set($event)"
+          [disabled]="manualSaving()"
+          required
+      /></label>
+      <p *ngIf="manualError()" class="form-error" role="alert">{{ manualError() }}</p>
+      <div class="product-form-actions">
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="manualSaving()"
+          (click)="closeManualDialog()"
+        >
+          Cancelar</button
+        ><button type="submit" class="primary-button" [disabled]="manualSaving()">
+          {{ manualSaving() ? 'Guardando…' : 'Guardar producto' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
+<div
+  *ngIf="connected() && editDialogOpen()"
+  class="product-dialog-backdrop"
+  (click)="closeEditDialog()"
+>
+  <section
+    class="product-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="edit-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="product-dialog-header">
+      <div>
+        <p class="eyebrow">EDITAR PRODUCTO</p>
+        <h2 id="edit-title">Actualiza la información</h2>
+      </div>
+      <button
+        type="button"
+        class="close-button"
+        [disabled]="editSaving()"
+        (click)="closeEditDialog()"
+        aria-label="Cerrar edición"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+      </button>
+    </div>
+    <form class="product-form" (ngSubmit)="saveEdit()" novalidate>
+      <label for="edit-name"
+        >Producto <span aria-hidden="true">*</span
+        ><input
+          id="edit-name"
+          name="edit-name"
+          type="text"
+          maxlength="180"
+          autocomplete="off"
+          [ngModel]="editName()"
+          (ngModelChange)="editName.set($event)"
+          [disabled]="editSaving()"
+          required /></label
+      ><label for="edit-brand"
+        >Marca <span class="optional">Opcional</span
+        ><input
+          id="edit-brand"
+          name="edit-brand"
+          type="text"
+          maxlength="120"
+          autocomplete="off"
+          [ngModel]="editBrand()"
+          (ngModelChange)="editBrand.set($event)"
+          [disabled]="editSaving()" /></label
+      ><label for="edit-units"
+        >Unidades <span aria-hidden="true">*</span
+        ><input
+          id="edit-units"
+          name="edit-units"
+          type="number"
+          min="1"
+          max="9999"
+          step="1"
+          inputmode="numeric"
+          [ngModel]="editUnits()"
+          (ngModelChange)="editUnits.set($event)"
+          [disabled]="editSaving()"
+          required /></label
+      ><label for="edit-expiration"
+        >Fecha de caducidad <span aria-hidden="true">*</span
+        ><input
+          id="edit-expiration"
+          name="edit-expiration"
+          type="date"
+          [ngModel]="editExpirationDate()"
+          (ngModelChange)="editExpirationDate.set($event)"
+          [disabled]="editSaving()"
+          required
+      /></label>
+      <p *ngIf="editError()" class="form-error" role="alert">{{ editError() }}</p>
+      <div class="product-form-actions">
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="editSaving()"
+          (click)="closeEditDialog()"
+        >
+          Cancelar</button
+        ><button type="submit" class="primary-button" [disabled]="editSaving()">
+          {{ editSaving() ? 'Guardando…' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
+<div
+  *ngIf="connected() && consumeDialogProduct() as product"
+  class="product-dialog-backdrop"
+  (click)="closeConsumeDialog()"
+>
+  <section
+    class="product-dialog consume-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="consume-title"
+    aria-describedby="consume-description"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="consume-dialog-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="m5 12 4.2 4.2L19 6.5" /></svg>
+    </div>
+    <p class="eyebrow">PRODUCTO GASTADO</p>
+    <h2 id="consume-title">¿Marcar {{ product.name }} como gastado?</h2>
+    <p id="consume-description">Se archivará y dejará de aparecer en tus productos activos.</p>
+    <div class="product-form-actions">
+      <button
+        id="consume-cancel"
+        type="button"
+        class="secondary-button"
+        [disabled]="consumeLoading()"
+        (click)="closeConsumeDialog()"
+      >
+        Cancelar</button
+      ><button
+        type="button"
+        class="consume-confirm-button"
+        [disabled]="consumeLoading()"
+        (click)="confirmConsume()"
+      >
+        {{ consumeLoading() ? 'Archivando…' : 'Sí, marcar como gastado' }}
+      </button>
+    </div>
+  </section>
+</div>
+<div
+  *ngIf="connected() && deleteDialogProduct() as product"
+  class="product-dialog-backdrop"
+  (click)="closeDeleteDialog()"
+>
+  <section
+    class="product-dialog delete-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="delete-title"
+    aria-describedby="delete-description"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="delete-dialog-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
+    </div>
+    <p class="eyebrow">ELIMINAR PRODUCTO</p>
+    <h2 id="delete-title">¿Eliminar {{ product.name }}?</h2>
+    <p id="delete-description">
+      Se borrará definitivamente de tu inventario. Esta acción no se puede deshacer.
+    </p>
+    <div class="product-form-actions">
+      <button
+        id="delete-cancel"
+        type="button"
+        class="secondary-button"
+        [disabled]="deleteLoading()"
+        (click)="closeDeleteDialog()"
+      >
+        Cancelar</button
+      ><button
+        type="button"
+        class="danger-button"
+        [disabled]="deleteLoading()"
+        (click)="deleteProduct()"
+      >
+        {{ deleteLoading() ? 'Eliminando…' : 'Eliminar' }}
+      </button>
+    </div>
+  </section>
+</div>
+<div
+  *ngIf="connected() && captureDialogOpen()"
+  class="capture-dialog-backdrop"
+  (click)="closeCaptureDialog()"
+>
+  <section
+    class="capture-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="capture-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="capture-dialog-header">
+      <div>
+        <p class="eyebrow">{{ replacingId() ? 'REEMPLAZAR PRODUCTO' : 'AÑADIR PRODUCTO' }}</p>
+        <h2 id="capture-title">{{ replacingId() ? 'Reemplaza la fecha' : 'Haz una foto' }}</h2>
+      </div>
+      <button
+        id="capture-close"
+        type="button"
+        class="close-button"
+        (click)="closeCaptureDialog()"
+        aria-label="Cerrar añadir producto"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+      </button>
+    </div>
+    <div class="capture-content">
+      <label class="upload-zone" for="product-image"
+        ><svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M4 7h3l1.4-2h7.2L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"
+          />
+          <circle cx="12" cy="13" r="3.5" /></svg
+        ><strong>Tomar o subir una foto</strong><small>JPG, PNG o WebP · hasta 5 MB</small></label
+      >
+      <input
+        id="product-image"
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        capture="environment"
+        (change)="onFile($event)"
+      />
+      <div class="capture-copy">
+        <p>
+          Incluye el producto y su fecha en la misma foto. El análisis continuará en segundo plano.
+        </p>
+      </div>
+    </div>
   </section>
 </div>
 <main *ngIf="!connected()" class="auth-page">
   <section class="auth-dialog" aria-labelledby="login-title">
-    <img class="dialog-logo" src="favicon.svg" alt="">
-    <p class="eyebrow">ACCESO PRIVADO</p><h2 id="login-title">Entra en StockAlert</h2>
+    <img class="dialog-logo" src="favicon.svg" alt="" />
+    <p class="eyebrow">ACCESO PRIVADO</p>
+    <h2 id="login-title">Entra en StockAlert</h2>
     <p class="dialog-copy">Inicia sesión con las credenciales de tu cuenta autorizada.</p>
-    <form (ngSubmit)="signIn()" novalidate><label for="login-email">Correo electrónico</label><input id="login-email" name="email" type="email" inputmode="email" autocomplete="username" maxlength="254" [ngModel]="loginEmail()" (ngModelChange)="loginEmail.set($event)" [disabled]="loginLoading()" required autofocus><label for="login-password">Contraseña</label><div class="password-field"><input id="login-password" name="password" [type]="passwordVisible() ? 'text' : 'password'" autocomplete="current-password" maxlength="256" [ngModel]="loginPassword()" (ngModelChange)="loginPassword.set($event)" [disabled]="loginLoading()" required><button class="password-toggle" type="button" (click)="passwordVisible.set(!passwordVisible())" [attr.aria-label]="passwordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'" [attr.aria-pressed]="passwordVisible()">{{ passwordVisible() ? 'Ocultar' : 'Mostrar' }}</button></div><p *ngIf="loginError()" class="form-error" role="alert">{{ loginError() }}</p><button class="primary-button dialog-submit" type="submit" [disabled]="loginLoading()">{{ loginLoading() ? 'Iniciando sesión…' : 'Iniciar sesión' }}</button></form>
+    <form (ngSubmit)="signIn()" novalidate>
+      <label for="login-email">Correo electrónico</label
+      ><input
+        id="login-email"
+        name="email"
+        type="email"
+        inputmode="email"
+        autocomplete="username"
+        maxlength="254"
+        [ngModel]="loginEmail()"
+        (ngModelChange)="loginEmail.set($event)"
+        [disabled]="loginLoading()"
+        required
+        autofocus
+      /><label for="login-password">Contraseña</label>
+      <div class="password-field">
+        <input
+          id="login-password"
+          name="password"
+          [type]="passwordVisible() ? 'text' : 'password'"
+          autocomplete="current-password"
+          maxlength="256"
+          [ngModel]="loginPassword()"
+          (ngModelChange)="loginPassword.set($event)"
+          [disabled]="loginLoading()"
+          required
+        /><button
+          class="password-toggle"
+          type="button"
+          (click)="passwordVisible.set(!passwordVisible())"
+          [attr.aria-label]="passwordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          [attr.aria-pressed]="passwordVisible()"
+        >
+          {{ passwordVisible() ? 'Ocultar' : 'Mostrar' }}
+        </button>
+      </div>
+      <p *ngIf="loginError()" class="form-error" role="alert">{{ loginError() }}</p>
+      <button class="primary-button dialog-submit" type="submit" [disabled]="loginLoading()">
+        {{ loginLoading() ? 'Iniciando sesión…' : 'Iniciar sesión' }}
+      </button>
+    </form>
   </section>
 </main>
